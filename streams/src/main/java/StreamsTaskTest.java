@@ -1,13 +1,20 @@
 import com.google.common.collect.ImmutableSet;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class StreamsTask {
-    public static void main(String[] args) {
+class StreamsTaskTest {
 
+    public static Collection<List<Employee>> employeesByDepartment;
+
+
+    @BeforeAll
+    public static void init()
+    {
         Employee _1 = new Employee(1000, "Moscow", 20);
         Employee _2 = new Employee(2000, "Moscow", 21);
         Employee _3 = new Employee(3000, "Moscow", 22);
@@ -18,27 +25,34 @@ public class StreamsTask {
         Employee _8 = new Employee(2000, "Kiev", 21);
         Employee _9 = new Employee(1000, "Kiev", 20);
 
-        Collection<List<Employee>> employeesByDepartment = ImmutableSet.of(_1, _2, _3, _4, _5, _6, _7, _8, _9)
+        employeesByDepartment = ImmutableSet.of(_1, _2, _3, _4, _5, _6, _7, _8, _9)
                 .stream()
                 .collect(Collectors.groupingBy(Employee::getDepartment))
                 .values();
-
-        //expected output 12000
-        System.out.println(findTotalSalaryOfEmployeesBelow22(employeesByDepartment));
     }
 
-    /**
-     * Returns total salary of all employees younger than 22, if no such employees throws RuntimeException
-     * @param employeesByDepartment
-     * @return
-     */
+
     private static Integer findTotalSalaryOfEmployeesBelow22(Collection<List<Employee>> employeesByDepartment) {
-        //не очень хорошая реализация
-        //наверное можно как-то обернуть внешний foreach цикл в collections api, но я не придумал как)
         int result = 0;
         for (List<Employee> depart: employeesByDepartment)
             result += depart.stream().filter(item -> item.getAge() < 22).mapToInt(Employee::getSalary).sum();
         if (result == 0) throw new RuntimeException();
         return result;
     }
+
+
+    @Test
+    public void simpleTest()
+    {
+        Assertions.assertEquals(12000, findTotalSalaryOfEmployeesBelow22(employeesByDepartment));
+    }
+
+    @Test
+    public void exceptionTest()
+    {
+        employeesByDepartment.clear();
+        Assertions.assertThrows(RuntimeException.class, () -> {findTotalSalaryOfEmployeesBelow22(employeesByDepartment);});
+    }
+
+
 }

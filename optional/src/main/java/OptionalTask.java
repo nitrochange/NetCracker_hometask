@@ -1,7 +1,11 @@
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OptionalTask {
     public static void main(String[] args) {
@@ -25,7 +29,21 @@ public class OptionalTask {
         System.out.println(getMaxSalaryOrElse(employees_4, 0));
     }
 
+    /**
+     * @param employees - set of Employees which we have to parse
+     * @param defaultValue - value uses in case when object is null or does not exist
+     * @return max salary among given employees or defaultValue if all employees are not present
+     */
     private static Integer getMaxSalaryOrElse(Set<Optional<Employee>> employees, int defaultValue) {
-        //implement me
+
+        List<Integer> salaries = employees
+                .stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList())
+                .stream()
+                .map(o -> o.getSalary().isPresent()? o.getSalary().get(): defaultValue)
+                .collect(Collectors.toList());
+        return salaries.isEmpty()? defaultValue: Collections.max(salaries);
     }
 }
