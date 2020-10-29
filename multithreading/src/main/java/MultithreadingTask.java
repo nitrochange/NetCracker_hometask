@@ -1,6 +1,4 @@
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class MultithreadingTask {
     public static void main(String[] args) {
@@ -10,9 +8,16 @@ public class MultithreadingTask {
 
         Integer total = 0;
 
+        //для каждой строки надо вернуть её длину
         for (String word : words) {
-            //implement me
+            try {
+                total += counter.getLength(word).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
+        //завершаем работу executorService
+        counter.executorService.shutdown();
 
         //expected output 344
         System.out.println(total);
@@ -26,8 +31,17 @@ public class MultithreadingTask {
          * @param word
          * @return
          */
-        public Future<Integer> getLength(String word) {
-            //implement me
+        public Future<Integer> getLength(final String word) {
+            return executorService.submit(new Callable<>() {
+                /**
+                 * Computes a result, or throws an exception if unable to do so.
+                 *
+                 * @return computed result
+                 */
+                public Integer call() {
+                    return word.length();
+                }
+            });
         }
     }
 
